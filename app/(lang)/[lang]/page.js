@@ -1,7 +1,10 @@
 import { apiUrl, clientId, clientSecret, deviceId, deviceType } from '@/config';
 import { sendRequest } from '@/util';
 
-async function getHomePageData() {
+export const dynamicParams = false; // true | false,
+export const fetchCache = 'force-cache';
+
+async function getHomePageData(lang) {
   //init request
   const url = `${apiUrl}/init`;
   let reqData = {
@@ -11,7 +14,7 @@ async function getHomePageData() {
     brand_id: 7,
     device_id: deviceId,
     device_type: deviceType,
-    language: 'en',
+    language: lang,
   };
 
   const initData = await sendRequest(url, reqData);
@@ -25,7 +28,7 @@ async function getHomePageData() {
     device_id: deviceId,
     domain_id: 57,
     page_id: 3,
-    path: 'en/',
+    path: `${lang}/`,
     gender: '',
     device_type: deviceType,
   };
@@ -40,8 +43,19 @@ async function getHomePageData() {
   return { initData, homePageData };
 }
 
-export default async function Page() {
-  const { initData, homePageData } = await getHomePageData();
+export async function generateStaticParams(){
+  return [{lang: 'en'}, {lang: 'de'}];
+}
 
-  return <h1>En page</h1>;
+
+export default async function Page({params:{lang}}) {
+  const { initData, homePageData } = await getHomePageData(lang);
+
+  return (
+    <>
+    <div>{JSON.stringify(initData)}</div>
+    <h1>{lang} page</h1>
+    </>
+  )
+  
 }
